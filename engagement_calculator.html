@@ -3,75 +3,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EngageSense - Sound Analyzer</title>
+  <title>EngageSense - Custom Engagement Intelligence</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     /* General Styles */
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to bottom, #121212, #1E1E1E);
+      background: linear-gradient(to right, #f9f9f9, #e3f2fd);
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #4CAF50, #81C784);
       color: white;
+      padding: 20px 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header h1 { margin: 0; font-size: 2.5em; }
+    header p { margin-top: 8px; font-size: 1.1em; }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 250px;
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.1em;
+      padding: 10px;
+      background-color: #4CAF50;
+      border-radius: 5px;
       text-align: center;
     }
-
-    header {
-      background-color: #1F1F1F;
-      padding: 20px 0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    .sidebar a:hover {
+      background-color: #45a049;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2.5em;
-    }
-    header p {
-      margin: 5px 0 0;
-      font-size: 1.2em;
-      color: #B3B3B3;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    /* Music Analyzer Controls */
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .controls button {
-      background: #4CAF50;
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 18px;
+      font-size: 1.2em;
+      padding: 10px 15px;
+      border-radius: 5px;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      transition: background 0.3s ease, transform 0.2s ease;
     }
-    .controls button:hover {
-      background: #45A049;
-      transform: scale(1.1);
+
+    /* Input Components */
+    .input-group {
+      margin: 20px 0;
+      text-align: left;
     }
-    .controls .volume-control {
+    .input-group label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: #4CAF50;
+      box-shadow: 0 0 4px rgba(76, 175, 80, 0.8);
+    }
+
+    /* Toggle */
+    .toggle-switch {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .volume-control input[type="range"] {
-      width: 150px;
+    .toggle-switch input {
+      display: none;
+    }
+    .toggle-switch label {
+      width: 50px;
+      height: 25px;
+      background: #ccc;
+      border-radius: 25px;
+      position: relative;
+      cursor: pointer;
+    }
+    .toggle-switch label:before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2.5px;
+      left: 2.5px;
+      transition: transform 0.3s ease;
+    }
+    .toggle-switch input:checked + label {
+      background: #4CAF50;
+    }
+    .toggle-switch input:checked + label:before {
+      transform: translateX(25px);
     }
 
-    /* Chart Section */
+    /* Progress Bar */
+    .progress-bar {
+      background: #ccc;
+      height: 10px;
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .progress-bar div {
+      background: #4CAF50;
+      height: 100%;
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    /* Cards for Charts */
     .chart-container {
       display: flex;
       flex-wrap: wrap;
@@ -79,83 +153,67 @@
       justify-content: center;
     }
     .chart-card {
-      background: #1F1F1F;
+      background: white;
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       width: 300px;
       padding: 20px;
       text-align: center;
     }
-    canvas {
-      max-width: 100%;
-      height: 250px;
-    }
-
-    /* Audio Wave Animation */
-    .wave-container {
-      margin: 20px auto;
-      width: 80%;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-    }
-    .wave-bar {
-      width: 5px;
-      height: 50%;
-      background: #4CAF50;
-      animation: bounce 1s infinite ease-in-out;
-    }
-    .wave-bar:nth-child(even) {
-      animation-delay: 0.2s;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: scaleY(0.5); }
-      50% { transform: scaleY(1.2); }
-    }
 
     /* Footer */
     footer {
-      background-color: #1F1F1F;
-      color: #B3B3B3;
+      background-color: #4CAF50;
+      color: white;
       text-align: center;
       padding: 10px 0;
-      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
+  <!-- Sidebar and Navigation -->
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar hidden" id="sidebar">
+    <a href="#charts">Charts</a>
+    <a href="#insights">Insights</a>
+    <a href="#controls">Controls</a>
+  </div>
+
   <header>
     <h1>EngageSense</h1>
-    <p>Real-Time Engagement Sound Analyzer</p>
+    <p>Customized Real-Time Engagement Tracking</p>
   </header>
 
   <div class="container">
-    <!-- Audio Controls -->
-    <div class="controls">
-      <button id="playButton">▶️</button>
-      <button id="pauseButton">⏸️</button>
-      <div class="volume-control">
-        <label for="volume">🔊</label>
-        <input type="range" id="volume" min="0" max="100" value="50">
+    <!-- Input Components -->
+    <section id="controls">
+      <div class="input-group">
+        <label for="engagementType">Select Engagement Type:</label>
+        <select id="engagementType">
+          <option value="physical">Physical Engagement</option>
+          <option value="spiritual">Spiritual Engagement</option>
+          <option value="mental">Mental Engagement</option>
+          <option value="emotional">Emotional Engagement</option>
+        </select>
       </div>
-    </div>
+      <div class="input-group">
+        <label for="threshold">Set Engagement Threshold:</label>
+        <input type="number" id="threshold" placeholder="Enter threshold (e.g., 50)">
+      </div>
+      <div class="toggle-switch">
+        <span>Enable Notifications:</span>
+        <input type="checkbox" id="enableNotifications">
+        <label for="enableNotifications"></label>
+      </div>
+    </section>
 
-    <!-- Audio Wave Visualization -->
-    <div class="wave-container">
-      <div class="wave-bar" style="animation-delay: 0s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.1s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.2s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.3s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.4s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.5s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.6s;"></div>
-      <div class="wave-bar" style="animation-delay: 0.7s;"></div>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar">
+      <div></div>
     </div>
 
     <!-- Charts Section -->
-    <div class="chart-container">
+    <section id="charts" class="chart-container">
       <div class="chart-card">
         <h3>Physical Engagement</h3>
         <canvas id="physicalChart"></canvas>
@@ -172,7 +230,7 @@
         <h3>Emotional Engagement</h3>
         <canvas id="emotionalChart"></canvas>
       </div>
-    </div>
+    </section>
   </div>
 
   <footer>
@@ -180,68 +238,18 @@
   </footer>
 
   <script>
-    // Charts Configuration
-    const chartConfig = (label, color) => ({
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: label,
-          data: [],
-          borderColor: color,
-          borderWidth: 2,
-          fill: false,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true },
-          x: { title: { display: true, text: 'Time (s)' } }
-        }
-      }
-    });
-
-    // Initialize Charts
-    const physicalChart = new Chart(document.getElementById('physicalChart').getContext('2d'), chartConfig('Physical Engagement', '#4CAF50'));
-    const spiritualChart = new Chart(document.getElementById('spiritualChart').getContext('2d'), chartConfig('Spiritual Engagement', '#2196F3'));
-    const mentalChart = new Chart(document.getElementById('mentalChart').getContext('2d'), chartConfig('Mental Engagement', '#FFC107'));
-    const emotionalChart = new Chart(document.getElementById('emotionalChart').getContext('2d'), chartConfig('Emotional Engagement', '#F44336'));
-
-    // Play and Pause Buttons
-    const waveBars = document.querySelectorAll('.wave-bar');
-    let waveAnimation = null;
-
-    document.getElementById('playButton').addEventListener('click', () => {
-      alert('Tracking started!');
-      waveAnimation = setInterval(() => {
-        const physical = Math.random() * 100;
-        const spiritual = Math.random() * 100;
-        const mental = Math.random() * 100;
-        const emotional = Math.random() * 100;
-
-        updateChart(physicalChart, physical);
-        updateChart(spiritualChart, spiritual);
-        updateChart(mentalChart, mental);
-        updateChart(emotionalChart, emotional);
-      }, 1000);
-    });
-
-    document.getElementById('pauseButton').addEventListener('click', () => {
-      alert('Tracking paused.');
-      clearInterval(waveAnimation);
-    });
-
-    function updateChart(chart, value) {
-      const time = new Date().toLocaleTimeString();
-      chart.data.labels.push(time);
-      chart.data.datasets[0].data.push(value);
-      if (chart.data.labels.length > 10) {
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
-      }
-      chart.update();
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
     }
+
+    // Simulate real-time progress
+    let progress = 0;
+    setInterval(() => {
+      const progressBar = document.getElementById('progressBar').firstElementChild;
+      progress = (progress + 5) % 100;
+      progressBar.style.width = progress + '%';
+    }, 1000);
   </script>
 </body>
 </html>
