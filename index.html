@@ -3,253 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EngageSense - Custom Engagement Intelligence</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>EngageSense - Real-Time Engagement Tracking</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.min.js"></script>
   <style>
-    /* General Styles */
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to right, #f9f9f9, #e3f2fd);
+      background-color: #f9f9f9;
       color: #333;
+      scroll-behavior: smooth;
     }
 
-    /* Header */
     header {
-      background: linear-gradient(90deg, #4CAF50, #81C784);
+      background-color: #4CAF50;
       color: white;
-      padding: 20px 0;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+
+    nav {
+      background-color: #005a9e;
+      padding: 10px;
       position: sticky;
       top: 0;
-      z-index: 1000;
-    }
-    header h1 { margin: 0; font-size: 2.5em; }
-    header p { margin-top: 8px; font-size: 1.1em; }
-
-    /* Sidebar Navigation */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 250px;
-      background-color: #333;
-      color: white;
-      padding: 20px;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: transform 0.3s ease;
-    }
-    .sidebar.hidden {
-      transform: translateX(-100%);
-    }
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      font-size: 1.1em;
-      padding: 10px;
-      background-color: #4CAF50;
-      border-radius: 5px;
-      text-align: center;
-    }
-    .sidebar a:hover {
-      background-color: #45a049;
-    }
-    .hamburger {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      font-size: 1.2em;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    /* Input Components */
-    .input-group {
-      margin: 20px 0;
-      text-align: left;
-    }
-    .input-group label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: block;
-    }
-    .input-group input, .input-group select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1em;
-    }
-    .input-group input:focus, .input-group select:focus {
-      outline: none;
-      border-color: #4CAF50;
-      box-shadow: 0 0 4px rgba(76, 175, 80, 0.8);
-    }
-
-    /* Toggle */
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .toggle-switch input {
-      display: none;
-    }
-    .toggle-switch label {
-      width: 50px;
-      height: 25px;
-      background: #ccc;
-      border-radius: 25px;
-      position: relative;
-      cursor: pointer;
-    }
-    .toggle-switch label:before {
-      content: "";
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      position: absolute;
-      top: 2.5px;
-      left: 2.5px;
-      transition: transform 0.3s ease;
-    }
-    .toggle-switch input:checked + label {
-      background: #4CAF50;
-    }
-    .toggle-switch input:checked + label:before {
-      transform: translateX(25px);
-    }
-
-    /* Progress Bar */
-    .progress-bar {
-      background: #ccc;
-      height: 10px;
-      border-radius: 5px;
-      margin: 20px 0;
-      overflow: hidden;
-    }
-    .progress-bar div {
-      background: #4CAF50;
-      height: 100%;
-      width: 0;
-      transition: width 0.3s ease;
-    }
-
-    /* Cards for Charts */
-    .chart-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
       justify-content: center;
     }
-    .chart-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 300px;
-      padding: 20px;
-      text-align: center;
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
     }
 
-    /* Footer */
-    footer {
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
       background-color: #4CAF50;
       color: white;
+      margin: 10px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px;
       text-align: center;
-      padding: 10px 0;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <!-- Sidebar and Navigation -->
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <div class="sidebar hidden" id="sidebar">
-    <a href="#charts">Charts</a>
-    <a href="#insights">Insights</a>
-    <a href="#controls">Controls</a>
-  </div>
-
+  <!-- Header -->
   <header>
     <h1>EngageSense</h1>
-    <p>Customized Real-Time Engagement Tracking</p>
+    <p>Track Real-Time Physical, Mental, Emotional, and Spiritual Engagement</p>
   </header>
 
+  <!-- Navigation -->
+  <nav>
+    <a href="#dataInputScreen">Data Input</a>
+    <a href="#analysisScreen">Analysis</a>
+    <a href="#feedback">Feedback</a>
+  </nav>
+
+  <!-- Content -->
   <div class="container">
-    <!-- Input Components -->
-    <section id="controls">
-      <div class="input-group">
-        <label for="engagementType">Select Engagement Type:</label>
-        <select id="engagementType">
-          <option value="physical">Physical Engagement</option>
-          <option value="spiritual">Spiritual Engagement</option>
-          <option value="mental">Mental Engagement</option>
-          <option value="emotional">Emotional Engagement</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="threshold">Set Engagement Threshold:</label>
-        <input type="number" id="threshold" placeholder="Enter threshold (e.g., 50)">
-      </div>
-      <div class="toggle-switch">
-        <span>Enable Notifications:</span>
-        <input type="checkbox" id="enableNotifications">
-        <label for="enableNotifications"></label>
-      </div>
+    <!-- Data Input Screen -->
+    <section id="dataInputScreen">
+      <h2>Data Input</h2>
+      <div class="status">Connecting to wearable devices...</div>
+      <button id="startStream">Start Live Data Stream</button>
+      <canvas id="liveDataChart" width="600" height="300"></canvas>
     </section>
 
-    <!-- Progress Bar -->
-    <div class="progress-bar" id="progressBar">
-      <div></div>
-    </div>
+    <!-- Analysis Screen -->
+    <section id="analysisScreen">
+      <h2>Analysis</h2>
+      <canvas id="analysisChart" width="600" height="300"></canvas>
+    </section>
 
-    <!-- Charts Section -->
-    <section id="charts" class="chart-container">
-      <div class="chart-card">
-        <h3>Physical Engagement</h3>
-        <canvas id="physicalChart"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Spiritual Engagement</h3>
-        <canvas id="spiritualChart"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Mental Engagement</h3>
-        <canvas id="mentalChart"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Emotional Engagement</h3>
-        <canvas id="emotionalChart"></canvas>
-      </div>
+    <!-- Feedback Section -->
+    <section id="feedback">
+      <h2>Feedback</h2>
+      <form id="feedbackForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="feedback">Feedback:</label>
+        <textarea id="feedback" name="feedback" required></textarea>
+        <button type="submit">Submit</button>
+      </form>
     </section>
   </div>
 
-  <footer>
-    <p>&copy; 2024 EngageSense. All rights reserved.</p>
-  </footer>
-
   <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const liveDataChartCtx = document.getElementById('liveDataChart').getContext('2d');
+      const analysisChartCtx = document.getElementById('analysisChart').getContext('2d');
+      const socket = io('https://your-live-data-stream-url'); // Replace with actual URL
 
-    // Simulate real-time progress
-    let progress = 0;
-    setInterval(() => {
-      const progressBar = document.getElementById('progressBar').firstElementChild;
-      progress = (progress + 5) % 100;
-      progressBar.style.width = progress + '%';
-    }, 1000);
+      const liveDataChart = new Chart(liveDataChartCtx, {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Live Engagement', data: [], borderColor: 'blue' }] },
+        options: { scales: { x: { beginAtZero: true }, y: { beginAtZero: true } } }
+      });
+
+      const analysisChart = new Chart(analysisChartCtx, {
+        type: 'bar',
+        data: { labels: ['Physical', 'Mental', 'Emotional', 'Spiritual'], datasets: [{ data: [80, 70, 90, 85] }] },
+        options: { responsive: true }
+      });
+
+      socket.on('live-data', (data) => {
+        liveDataChart.data.labels.push(data.timestamp);
+        liveDataChart.data.datasets[0].data.push(data.value);
+        liveDataChart.update();
+      });
+
+      document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Thank you for your feedback!');
+      });
+    });
   </script>
 </body>
 </html>
